@@ -1,14 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addReminder } from "../Actions";
+import { addReminder, deleteReminder } from "../Actions";
+import moment from 'moment';
 
 class  App extends Component {
-
-  addReminder = () => {
-    console.log('this' , this)
-    this.props.addReminder(this.state.text)
+  constructor(props){
+    super(props);
+    this.state = {
+      text: '',
+      dueDate: ''
+    }
   }
-
+  addReminder = () => {
+    console.log('this.state.dueDate' , this.state.dueDate)
+    this.props.addReminder(this.state.text, this.state.dueDate)
+  }
+  deleteReminder = id => {
+    this.props.deleteReminder(id)
+  }
   renderReminders = () => {
   const { reminders } = this.props;
   return (
@@ -16,7 +25,15 @@ class  App extends Component {
       {reminders.map(reminder => {
         return (
           <li key={reminder.id} className="list-group-item">
+            <div className="list-item">
             <div>{reminder.text}</div>
+              <div><em>{moment(new Date(reminder.dueDate)).fromNow()}</em></div>
+            </div>
+            <div
+              onClick={() => this.deleteReminder(reminder.id)}
+              className="list-item delete-button">
+              &#x2715;
+            </div>
           </li>
         )
       })}
@@ -38,6 +55,11 @@ class  App extends Component {
             placeholder="I have to..."
             onChange={event => this.setState({ text: event.target.value })}
           />
+          <input
+            onChange={(event ) => this.setState({ dueDate: event.target.value })}
+            className="form-control"
+            type="datetime-local"
+          />
         </div>
         <button
           onClick={this.addReminder}
@@ -57,4 +79,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, { addReminder })(App);
+export default connect(mapStateToProps, { addReminder, deleteReminder })(App);
